@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --accent: #c6ff3d;
+  --bg: #07070a;
+}
+
+html { background: var(--bg); }
+body {
+  margin: 0;
+  color: #fff;
+  background: var(--bg);
+  font-family: var(--font-main), system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Headline: outlined base layer + solid layer revealed by the car (clip-path). */
+.hl-base { color: transparent; -webkit-text-stroke: 1px rgba(255, 255, 255, 0.35); }
+.hl-fill { color: var(--accent); clip-path: inset(0 100% 0 0); will-change: clip-path; }
+.hl-letter { display: inline-block; will-change: transform, opacity; }
+
+.car, .road-lines, .stat, .stat-inner { will-change: transform, opacity; }
+
+.road-lines {
+  background-image: repeating-linear-gradient(
+    90deg, rgba(255,255,255,.35) 0 4vw, transparent 4vw 8vw
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
