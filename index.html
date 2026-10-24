@@ -1,72 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ITZFIZZ | Scroll Hero</title>
-    <meta
-      name="description"
-      content="ITZFIZZ scroll-driven hero section animation built with vanilla HTML, CSS and GSAP."
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Syne:wght@800&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="style.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  </head>
-  <body>
-    <header class="hero-section" id="hero">
-      <div class="hero-glow"></div>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ITZFIZZ — Scroll Hero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Syne:wght@800&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+  :root { --bg:#0a0a0a; --yellow:#FFC900; --orange:#FF8C00; --text:#f5f5f0; --muted:#8a8a85; }
+  html, body { background: var(--bg); color: var(--text); font-family: 'Space Grotesk', sans-serif; overflow-x: hidden; }
+  .font-display { font-family: 'Syne', 'Space Grotesk', sans-serif; font-weight: 800; }
 
-      <div class="hero-copy" id="copy">
-        <h1 class="headline" id="headline" aria-label="Welcome ITZFIZZ"></h1>
+  /* Headline */
+  .headline { letter-spacing: 0.35em; margin-right: -0.35em; font-size: clamp(1.1rem, 3.4vw, 3.2rem); line-height: 1.1; }
+  .headline .word { display: inline-flex; white-space: nowrap; }
+  .headline .gap { display: inline-block; width: 0.9em; }
+  .headline .ch { display: inline-block; will-change: transform, opacity; }
+  .headline .accent { color: var(--yellow); }
 
-        <div class="stats" aria-label="ITZFIZZ highlights">
-          <div class="stat-item">
-            <div class="stat-number">250<span class="accent">+</span></div>
-            <div class="stat-label">PROJECTS</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-number">50<span class="accent">+</span></div>
-            <div class="stat-label">CLIENTS</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-number">4.9</div>
-            <div class="stat-label">RATING</div>
-          </div>
-        </div>
+  /* Stats */
+  .stat { will-change: transform, opacity; }
+  .stat-num { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(2rem, 5vw, 4rem); line-height: 1; }
+  .stat-label { letter-spacing: 0.25em; font-size: clamp(.6rem, 1vw, .8rem); color: var(--muted); }
+
+  /* Car stage */
+  .car-wrap { will-change: transform; transform-origin: 50% 80%; }
+  .car { width: clamp(280px, 46vw, 640px); aspect-ratio: 2.9 / 1; position: relative; }
+  .car-body {
+    position: absolute; left: 0; right: 0; bottom: 18%; height: 42%;
+    background: linear-gradient(135deg, var(--yellow), var(--orange));
+    border-radius: 12% 22% 8% 8% / 50% 60% 20% 20%;
+  }
+  .car-cabin {
+    position: absolute; left: 24%; width: 48%; bottom: 55%; height: 36%;
+    background: linear-gradient(160deg, #ffd84a, var(--orange));
+    border-radius: 40% 55% 4% 4% / 90% 90% 4% 4%;
+  }
+  .car-window {
+    position: absolute; left: 29%; width: 38%; bottom: 58%; height: 26%;
+    background: linear-gradient(160deg, #1c1c1c, #0a0a0a);
+    border-radius: 40% 55% 4% 4% / 90% 90% 4% 4%;
+    opacity: .92;
+  }
+  .car-text {
+    position: absolute; left: 50%; bottom: 31%; transform: translateX(-50%);
+    font-family: 'Syne', sans-serif; font-weight: 800; letter-spacing: .3em; margin-right: -.3em;
+    color: #0a0a0a; font-size: clamp(.8rem, 2.2vw, 1.8rem); z-index: 2;
+  }
+  .headlight { position:absolute; right:2%; bottom:38%; width:5%; height:7%; background:#fff6cf; border-radius:50%; box-shadow:0 0 18px 6px rgba(255,236,160,.7); }
+  .taillight { position:absolute; left:1.5%; bottom:38%; width:3%; height:6%; background:#ff3b1f; border-radius:30%; }
+  .wheel {
+    position: absolute; bottom: 4%; width: 21%; aspect-ratio: 1; border-radius: 50%;
+    background: radial-gradient(circle, #cfcfcf 0 14%, #2a2a2a 15% 45%, #0e0e0e 46%);
+    border: 3px solid #050505; z-index: 3;
+  }
+  .wheel.front { right: 12%; }
+  .wheel.rear { left: 10%; }
+  .wheel::after { /* spokes */
+    content:""; position:absolute; inset:18%; border-radius:50%;
+    background: repeating-conic-gradient(#8d8d8d 0 8deg, transparent 8deg 45deg);
+    opacity:.65;
+  }
+  .wheel .spin { position:absolute; inset:0; border-radius:50%; will-change: transform; }
+  .shadow {
+    position: absolute; left: 8%; right: 8%; bottom: -4%; height: 10%; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(255,201,0,.55), rgba(0,0,0,0) 70%);
+    filter: blur(14px); will-change: transform, opacity; transform-origin: 50% 50%;
+  }
+  .road { height: 1px; background: linear-gradient(90deg, transparent, rgba(255,201,0,.35), transparent); }
+  .glow { background: radial-gradient(circle at 50% 60%, rgba(255,201,0,.12), transparent 60%); }
+
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+
+<!-- HERO (pinned) -->
+<section id="hero" class="relative h-screen w-full overflow-hidden flex flex-col items-center justify-start">
+  <div class="glow absolute inset-0 pointer-events-none"></div>
+
+  <div id="copy" class="relative z-10 text-center px-4 pt-[9vh] will-change-transform" style="transform-origin:50% 0">
+    <h1 id="headline" class="headline font-display" aria-label="Welcome ITZFIZZ"></h1>
+
+    <div id="stats" class="mt-[5vh] flex items-start justify-center gap-8 sm:gap-16">
+      <div class="stat"><div class="stat-num">250<span style="color:var(--yellow)">+</span></div><div class="stat-label mt-2">PROJECTS</div></div>
+      <div class="stat"><div class="stat-num">50<span style="color:var(--yellow)">+</span></div><div class="stat-label mt-2">CLIENTS</div></div>
+      <div class="stat"><div class="stat-num">4.9</div><div class="stat-label mt-2">RATING</div></div>
+    </div>
+  </div>
+
+  <!-- Car -->
+  <div class="absolute inset-x-0 bottom-[10vh] flex justify-center z-0">
+    <div id="carWrap" class="car-wrap">
+      <div class="car" id="car" role="img" aria-label="Yellow ITZ car">
+        <div class="shadow" id="shadow"></div>
+        <div class="car-cabin"></div>
+        <div class="car-window"></div>
+        <div class="car-body"></div>
+        <div class="car-text">ITZ</div>
+        <div class="headlight"></div>
+        <div class="taillight"></div>
+        <div class="wheel rear"><div class="spin"></div></div>
+        <div class="wheel front"><div class="spin"></div></div>
       </div>
+    </div>
+  </div>
+  <div class="road absolute inset-x-0 bottom-[10vh] z-0"></div>
+</section>
 
-      <div class="car-stage" aria-hidden="true">
-        <div class="car-visual" id="carVisual">
-          <div class="shadow"></div>
-          <div class="car-body">
-            <div class="car-window"></div>
-            <div class="car-cabin"></div>
-          </div>
-          <div class="car-text">ITZ</div>
-          <div class="headlight"></div>
-          <div class="taillight"></div>
-          <div class="wheel wheel-rear"><span class="spin"></span></div>
-          <div class="wheel wheel-front"><span class="spin"></span></div>
-        </div>
-      </div>
+<!-- SECOND SECTION (200vh) -->
+<section id="next" class="relative w-full flex items-start justify-center" style="height:200vh">
+  <h2 class="font-display text-center px-6 pt-[40vh]" style="font-size:clamp(2.2rem,8vw,7rem);line-height:1;letter-spacing:-.01em">
+    BUILT FOR <span style="color:var(--yellow)">PERFORMANCE</span>
+  </h2>
+</section>
 
-      <div class="road"></div>
-    </header>
+<script>
+(() => {
+  gsap.registerPlugin(ScrollTrigger);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    <main class="next-section">
-      <div class="next-content">
-        <h2>
-          BUILT FOR <span class="accent">PERFORMANCE</span>
-        </h2>
-      </div>
-    </main>
+  /* 1. Build the letter-spaced headline: W E L C O M E  I T Z F I Z Z */
+  const headline = document.getElementById('headline');
+  const addWord = (word, accent) => {
+    const w = document.createElement('span');
+    w.className = 'word' + (accent ? ' accent' : '');
+    [...word].forEach(c => {
+      const s = document.createElement('span');
+      s.className = 'ch'; s.textContent = c; s.setAttribute('aria-hidden', 'true');
+      w.appendChild(s);
+    });
+    headline.appendChild(w);
+  };
+  addWord('WELCOME', false);
+  const gap = document.createElement('span'); gap.className = 'gap'; headline.appendChild(gap);
+  addWord('ITZFIZZ', true);
 
-    <script src="script.js"></script>
-  </body>
+  const letters = gsap.utils.toArray('.ch');
+  const stats = gsap.utils.toArray('.stat');
+
+  /* 2. Initial load animation (time-based, power4.out) */
+  gsap.set(letters, { opacity: 0, y: 40 });
+  gsap.set(stats, { opacity: 0, y: 30 });
+  const intro = gsap.timeline({ defaults: { ease: 'power4.out' } });
+  intro
+    .to(letters, { opacity: 1, y: 0, duration: 1.3, stagger: 0.06 })
+    .to(stats,   { opacity: 1, y: 0, duration: 1.1, stagger: 0.15 }, '-=0.7')
+    .from('#carWrap', { opacity: 0, x: -120, duration: 1.6 }, 0.2);
+
+  if (reduce) return;
+
+  /* 3. Scroll-driven animation: scrubbed + pinned */
+  const vw = () => window.innerWidth;
+
+  const tl = gsap.timeline({
+    defaults: { ease: 'none' },
+    scrollTrigger: {
+      trigger: '#hero',
+      start: 'top top',
+      end: '+=150%',
+      pin: true,
+      scrub: true,          // tied directly to scroll progress
+      anticipatePin: 1,
+      invalidateOnRefresh: true
+    }
+  });
+
+  tl
+    // Car: translate X/Y, scale 1.3, rotate -3deg
+    .to('#carWrap', {
+      x: () => vw() * 0.28,
+      y: () => -window.innerHeight * 0.06,
+      scale: 1.3,
+      rotation: -3,
+      force3D: true
+    }, 0)
+    // Shadow expands
+    .to('#shadow', { scaleX: 1.5, scaleY: 1.8, opacity: 0.9 }, 0)
+    // Wheels spin with scroll
+    .to('.wheel .spin', { rotation: 720 }, 0)
+    // Headline and stats fade / scale out
+    .to('#copy', { opacity: 0, scale: 0.85, y: -60, transformOrigin: '50% 0' }, 0)
+    .to('.stat', { opacity: 0, scale: 0.8, stagger: 0.05 }, 0);
+
+  // Recalculate pin after fonts load so layout is exact
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => ScrollTrigger.refresh());
+})();
+</script>
+</body>
 </html>
